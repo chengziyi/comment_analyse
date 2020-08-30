@@ -54,8 +54,8 @@ python server.py运行程序后用浏览器查看
 
 #### 效果: 
 
-![1598784329483](https://github.com/chengziyi/comment_analyse/example1.png)
+![1598784329483](https://github.com/chengziyi/comment_analyse/blob/master/example1.png)
 
-![1598784404500](https://github.com/chengziyi/comment_analyse/example2.png)
+![1598784404500](https://github.com/chengziyi/comment_analyse/blob/master/example2.png)
 
-![1598784443444](https://github.com/chengziyi/comment_analyse/example3.png)
+![1598784443444](https://github.com/chengziyi/comment_analyse/blob/master/example3.png)
