@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <title>Sentiment Analyse</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel='stylesheet' id='style-css' href="{{ url_for('static',filename='css/bootstrap.min.css') }}"  type='text/css' media='all'>
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static',filename='css/dashboard.css') }}" rel="stylesheet">
+
+	<!-- show pie -->
+	<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<!-- show radar -->
+	<script src="/static/js/Chart.js"></script>
+
+  </head>
+<body>
+	<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3">Sentiment Analyse</a>
+		<input class="form-control form-control-dark w-100" type="text" placeholder="KFC，田老师红烧肉..." id="search_name">
+		<ul class="navbar-nav px-3">
+		<li class="nav-item text-nowrap">
+			<button id="btn" type="submit" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="submit" style="color:rgb(255,255,255);">go</button>
+		</li>
+		</ul>
+	</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="sidebar-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">
+              <span data-feather="home"></span>
+              Dashboard <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/get_comments">
+              <span data-feather="file"></span>
+              View comments
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+<!-- show charts -->
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<h1 class="h2">Dashboard</h1>
+		</div>
+		<div style="float:left; width: 1000px; height: 50px; margin:0 auto">
+			<div style="float:left;"><h4>评论占比</h4></div>
+			<div class="alert alert-info alert-dismissable" style="float:right;">
+				数据来源于大众点评06年-12年历史数据
+			</div>
+		</div>
+		<p>
+		<div style="float:left; width: 1000px; height: 400px; margin:0 auto">
+			<div id="container" style="float:left; width: 500px; height: 400px;"></div>
+			<div id="container2" style="float:left; width: 500px; height: 400px;"></div>
+		</div>
+		</p>
+
+		<div style="float:left; width: 1000px; height: 50px; margin:0 auto">
+			<h4>数量变化</h4>
+		</div>
+
+		<div id="container3" style="width: 1000px; height: 400px; margin: 0 auto"></div>
+
+		<div style="float:left; width: 1000px; height: 50px; margin:0 auto">
+			<h4>主题分布</h4>
+		</div>
+
+		<div class="htmleaf-content">
+			<div style="width:400px;margin:0 auto;">
+				<canvas id="canvas" height="400" width="400"></canvas>
+			</div>
+		</div>
+    </main>
+  </div>
+</div>
+</body>
+
+<script language="JavaScript">
+data={{ data|safe }};
+update=false
+    $('#btn').click(function () {
+        name = $('#search_name').val();
+        if (name) {
+            $.ajax({
+                url: 'http://localhost:5000/get_data',
+                type: 'post',
+                data: {
+                    search_name: name,
+                },
+                success: function (response) {
+                    console.log(response)
+					if (response=="no_result") {
+						alert('没有找到结果')
+					}
+					update=true
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            })
+        }
+    });
+
+function plot_pie(pdata){
+	$(document).ready(function() {  
+		var chart = {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false
+		};
+		var title = {
+			text: 'percentage of Positive and Negative comments'   
+		};      
+		var tooltip = {
+			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		};
+		var plotOptions = {
+		  pie: {
+			 allowPointSelect: true,
+			 cursor: 'pointer',
+			 dataLabels: {
+				enabled: true,
+				format: '<b>{point.name}%</b>: {point.percentage:.1f} %',
+			 },
+			 showInLegend: true
+		  }
+		};
+	   
+		var series= [{
+			type: 'pie',
+			name: 'Browser share',
+			data: [
+			 ['positive',   pdata.pie.pos],
+			 ['negtive',   pdata.pie.neg]
+			]
+		}];
+		var json = {};   
+		json.chart = chart; 
+		json.title = title;     
+		json.tooltip = tooltip;  
+		json.series = series;
+		json.plotOptions = plotOptions;
+		$('#container').highcharts(json);  
+	});
+}
+
+function plot_bar(bdata){
+	$(document).ready(function() {  
+		var chart = {
+			type: 'bar'
+		};
+		var title = {
+			text: 'number of positive comments and negtive comments'   
+		};
+		var subtitle = {
+			text: 'Source: dianping.com'  
+		};
+		var xAxis = {
+			categories: ['大众点评'],
+			title: {
+			  text: null
+			}
+		};
+		var yAxis = {
+			min: 0,
+			title: {
+			  text: 'number',
+			  align: 'high'
+			},
+			labels: {
+			 overflow: 'justify'
+			}
+		};
+		var tooltip = {
+			valueSuffix: ' millions'
+		};
+		var plotOptions = {
+			bar: {
+			 dataLabels: {
+				enabled: true
+			 }
+			}
+		};
+		var legend = {
+		  layout: 'vertical',
+		  align: 'right',
+		  verticalAlign: 'top',
+		  x: -40,
+		  y: 100,
+		  floating: true,
+		  borderWidth: 1,
+		  backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+		  shadow: true
+		};
+		var credits = {
+		  enabled: false
+		};
+
+		var series= [{
+			name: 'positive',
+			data: [bdata.bar.pos]
+			}, {
+			name: 'negtive',
+			data: [bdata.bar.neg]      
+			}
+		];     
+
+		var json = {};   
+		json.chart = chart; 
+		json.title = title;   
+		json.subtitle = subtitle; 
+		json.tooltip = tooltip;
+		json.xAxis = xAxis;
+		json.yAxis = yAxis;  
+		json.series = series;
+		json.plotOptions = plotOptions;
+		json.legend = legend;
+		json.credits = credits;
+		$('#container2').highcharts(json);
+	});
+}
+
+function plot_line(ldata){
+	$(document).ready(function() {   
+		var title = {
+			text: 'number of comments with time'   
+		};
+		var subtitle = {
+			text: 'Source: dianping.com'
+		};
+
+		var xAxis = {
+			categories: ldata.line.x
+		};
+		var yAxis = {
+			title: {
+				text: 'number of comments'
+			}
+		};
+		var plotOptions = {
+			line: {
+				dataLabels: {
+					enabled: true
+				},
+				enableMouseTracking: true
+			}
+		};
+
+		var series= [{
+				name: ldata.line.name,
+				data: ldata.line.y
+			}
+		];
+
+		var json = {};
+		json.title = title;
+		json.subtitle = subtitle;
+		json.xAxis = xAxis;
+		json.yAxis = yAxis;  
+		json.series = series;
+		json.plotOptions = plotOptions;
+		$('#container3').highcharts(json);
+	});
+}
+
+plot_pie(data)
+plot_bar(data)
+plot_line(data)
+
+function get(){
+	$.ajax({
+		url: 'http://localhost:5000/get_data',
+		type: 'GET',
+		dataType: "json",
+
+		success: function (result) {
+			console.log(result)
+			data=result
+			<!-- console.log(data.line.name) -->
+			<!-- console.log(data.bar) -->
+			plot_pie(data)
+			plot_bar(data)
+			plot_line(data)
+		},
+		error: function (error) {
+			console.log(error)
+		}
+	})
+}
+
+update_radar=false
+
+setInterval(function(){ //3s定时刷新这个方法
+	if (update){
+		get()
+		update=false
+		update_radar=true
+	}
+},1000)
+
+function plot_radar(rdata_x,rdata_y) {
+	var radarChartData = {
+		labels: rdata_x,
+		datasets: [
+			{
+				label: "My Second dataset",
+				fillColor: "rgba(151,187,205,0.2)",
+				strokeColor: "rgba(151,187,205,1)",
+				pointColor: "rgba(151,187,205,1)",
+				pointStrokeColor: "#fff",
+				pointHighlightFill: "#fff",
+				pointHighlightStroke: "rgba(151,187,205,1)",
+				data: rdata_y
+			}
+		]
+	};
+	var myRadar = new Chart(document.getElementById("canvas").getContext("2d")).Radar(radarChartData, {
+		responsive: true
+	});
+	return myRadar
+}
+
+init_datax=["Eating", "Drinking", "Sleeping", "Coding", "Cycling", "Running"]
+init_datay=[0,0,0,0,0,0]
+radar=plot_radar(init_datax,init_datay)
+
+function show_topic(){
+	$.ajax({
+		url: 'http://localhost:5000/get_topic',
+		type: 'GET',
+		dataType: "json",
+
+		success: function (result) {
+			console.log(result)
+			radar_data=result
+			radar.destroy();
+			plot_radar(radar_data.x,radar_data.y)
+		},
+		error: function (error) {
+			console.log(error)
+		}
+	})
+}
+setInterval(function(){ //3s定时刷新这个方法
+	if (update_radar){
+		show_topic()
+		update_radar=false
+	}
+},1000)
+
+$('#btn').click(function () {
+	alert('可能需要5秒钟')
+});
+
+</script>
+
+</html>

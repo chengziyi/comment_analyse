@@ -1,0 +1,13 @@
+pandas
+pymongo
+jieba
+gensim
+flask
+fasttext
+
+
+
+
+
+
+
