@@ -52,10 +52,3 @@ python server.py运行程序后用浏览器查看
 
 如果不是在本地运行需要修改./templates/dashboard.html里ajax请求的url才能在浏览器看到效果
 
-#### 效果: 
-
-![example1](https://github.com/chengziyi/comment_analyse/blob/master/example1.png)
-
-![example1](https://github.com/chengziyi/comment_analyse/raw/master/example1.png)
-
-![1598784443444](https://github.com/chengziyi/comment_analyse/blob/master/example3.png)
