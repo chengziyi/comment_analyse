@@ -54,3 +54,10 @@ python server.py运行程序后用浏览器查看
 
 #### 最终效果:
 
+![image](https://github.com/chengziyi/comment_analyse/blob/master/images/1.png)
+
+![image](https://github.com/chengziyi/comment_analyse/blob/master/images/2.png)
+
+![image](https://github.com/chengziyi/comment_analyse/blob/master/images/3.png)
+
+![image](https://github.com/chengziyi/comment_analyse/blob/master/images/4.png)
