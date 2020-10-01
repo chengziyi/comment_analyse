@@ -52,3 +52,5 @@ python server.py运行程序后用浏览器查看
 
 如果不是在本地运行需要修改./templates/dashboard.html里ajax请求的url才能在浏览器看到效果
 
+#### 最终效果:
+
